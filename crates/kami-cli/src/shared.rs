@@ -42,6 +42,7 @@ pub fn create_runtime(
         cache_size,
         max_concurrent: concurrency,
         epoch_interruption: true,
+        ..RuntimeConfig::default()
     };
     KamiRuntime::new(config, repo).map_err(|e| anyhow::anyhow!("runtime init error: {e}"))
 }

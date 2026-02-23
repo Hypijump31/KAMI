@@ -16,6 +16,7 @@ fn make_handler() -> McpHandler {
         cache_size: 4,
         max_concurrent: 2,
         epoch_interruption: false,
+        ..RuntimeConfig::default()
     };
     let runtime = KamiRuntime::new(config, repo.clone()).expect("runtime");
     McpHandler::new(Arc::new(runtime), repo)
@@ -120,4 +121,69 @@ fn handle_notification_initialized_does_not_panic() {
         params: None,
     };
     handler.handle_notification(&notif);
+}
+
+#[tokio::test]
+async fn prompts_list_returns_empty_array() {
+    let handler = make_handler();
+    let req = rpc(methods::PROMPTS_LIST, 20, None);
+    let output = handler.dispatch(&req).await;
+    let json_str = output.to_json().expect("ser");
+    let parsed: Value = serde_json::from_str(&json_str).expect("de");
+    let prompts = parsed["result"]["prompts"].as_array().expect("arr");
+    assert!(prompts.is_empty());
+}
+
+#[tokio::test]
+async fn resources_list_returns_empty_array() {
+    let handler = make_handler();
+    let req = rpc(methods::RESOURCES_LIST, 21, None);
+    let output = handler.dispatch(&req).await;
+    let json_str = output.to_json().expect("ser");
+    let parsed: Value = serde_json::from_str(&json_str).expect("de");
+    let resources = parsed["result"]["resources"].as_array().expect("arr");
+    assert!(resources.is_empty());
+}
+
+#[tokio::test]
+async fn resources_read_without_params_returns_error() {
+    let handler = make_handler();
+    let req = rpc(methods::RESOURCES_READ, 22, None);
+    let output = handler.dispatch(&req).await;
+    let json_str = output.to_json().expect("ser");
+    let parsed: Value = serde_json::from_str(&json_str).expect("de");
+    assert!(parsed["error"]["code"].is_i64());
+}
+
+#[tokio::test]
+async fn resources_read_with_uri_returns_not_found() {
+    let handler = make_handler();
+    let req = rpc(
+        methods::RESOURCES_READ,
+        23,
+        Some(json!({"uri": "file:///test"})),
+    );
+    let output = handler.dispatch(&req).await;
+    let json_str = output.to_json().expect("ser");
+    let parsed: Value = serde_json::from_str(&json_str).expect("de");
+    assert!(parsed["error"]["message"]
+        .as_str()
+        .expect("msg")
+        .contains("resource not found"));
+}
+
+#[tokio::test]
+async fn initialize_advertises_all_capabilities() {
+    let handler = make_handler();
+    let req = rpc(methods::INITIALIZE, 30, None);
+    let output = handler.dispatch(&req).await;
+    let json_str = output.to_json().expect("ser");
+    let parsed: Value = serde_json::from_str(&json_str).expect("de");
+    let caps = &parsed["result"]["capabilities"];
+    assert!(caps["tools"].is_object(), "tools capability missing");
+    assert!(caps["prompts"].is_object(), "prompts capability missing");
+    assert!(
+        caps["resources"].is_object(),
+        "resources capability missing"
+    );
 }

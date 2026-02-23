@@ -81,6 +81,15 @@ impl McpHandler {
                 )
                 .await
             }
+            methods::PROMPTS_LIST => {
+                dispatch::prompts_list::handle_prompts_list(request.id.clone())
+            }
+            methods::RESOURCES_LIST => {
+                dispatch::resources_list::handle_resources_list(request.id.clone())
+            }
+            methods::RESOURCES_READ => {
+                dispatch::resources_list::handle_resources_read(request.id.clone(), &request.params)
+            }
             other => {
                 tracing::warn!(method = other, "unknown MCP method");
                 JsonRpcOutput::Error(JsonRpcErrorResponse::error(

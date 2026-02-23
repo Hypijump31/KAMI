@@ -11,7 +11,7 @@ pub mod instance;
 pub mod memory;
 pub mod state;
 
-pub use bindings::{call_run, instantiate_tool};
+pub use bindings::{call_describe, call_run, instantiate_tool};
 pub use component::{
     call_tool_run, create_linker, instantiate_component, load_component, load_component_from_file,
 };

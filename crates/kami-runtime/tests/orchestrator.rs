@@ -5,7 +5,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use kami_engine::{create_engine, create_linker, InstanceConfig};
 use kami_registry::{RepositoryError, ToolQuery, ToolRepository};
-use kami_runtime::{KamiRuntime, RuntimeConfig, RuntimeError};
+use kami_runtime::{KamiRuntime, RateLimitConfig, RuntimeConfig, RuntimeError};
 use kami_types::{Tool, ToolId};
 
 // ---------------------------------------------------------------------------
@@ -46,6 +46,7 @@ fn make_runtime() -> KamiRuntime {
         cache_size: 4,
         max_concurrent: 2,
         epoch_interruption: true,
+        ..RuntimeConfig::default()
     };
     KamiRuntime::new(config, Arc::new(EmptyRepository)).expect("runtime")
 }
@@ -126,6 +127,7 @@ async fn orchestrator_with_engine_creates_valid_runtime() {
         cache_size: 2,
         max_concurrent: 1,
         epoch_interruption: false,
+        ..RuntimeConfig::default()
     };
     let runtime = KamiRuntime::with_engine(engine, linker, config, Arc::new(EmptyRepository));
     let id = ToolId::new("dev.test.wengine").expect("id");
@@ -138,4 +140,33 @@ async fn orchestrator_resolver_accessible() {
     let runtime = make_runtime();
     // resolver() should be accessible without panic
     let _resolver = runtime.resolver();
+}
+
+#[tokio::test]
+async fn orchestrator_rate_limited_rejects_excess_requests() {
+    use std::time::Duration;
+
+    let config = RuntimeConfig {
+        cache_size: 4,
+        max_concurrent: 2,
+        epoch_interruption: true,
+        rate_limit: RateLimitConfig {
+            per_tool: 2,
+            global: 0,
+            window: Duration::from_secs(60),
+        },
+    };
+    let runtime = KamiRuntime::new(config, Arc::new(EmptyRepository)).expect("runtime");
+    let id = ToolId::new("dev.test.ratelimit").expect("id");
+
+    // First two calls consume tokens (they fail with ToolNotFound, but rate limit passes)
+    let _ = runtime.execute(&id, "{}").await;
+    let _ = runtime.execute(&id, "{}").await;
+
+    // Third call should be rate limited
+    let result = runtime.execute(&id, "{}").await;
+    assert!(
+        matches!(result, Err(RuntimeError::RateLimited { .. })),
+        "expected RateLimited, got {result:?}",
+    );
 }

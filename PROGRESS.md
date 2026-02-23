@@ -135,7 +135,7 @@
 
 ### Build Status
 - `cargo build` - PASS
-- `cargo test` - **439 tests PASS** (+36 since last commit)
+- `cargo test` - **448 tests PASS** (+9 since last commit)
 - `cargo clippy --all-targets` - CLEAN (0 warnings)
 - `cargo fmt --check` - CLEAN
 - `cargo audit` - CLEAN (4 known wasmtime advisories ignored via `.cargo/audit.toml`)
@@ -436,6 +436,14 @@ All 6 phases of the KAMI roadmap are implemented:
 - **New dependencies**: `ed25519-dalek` v2 (std, rand_core), `rand` v0.8 in workspace
 - **15+ test files updated** with new ToolManifest fields (`signature: None, signer_public_key: None`)
 - **402 tests passing, clippy clean, fmt clean**
+
+### Session 26 (Code Quality Improvements)
+- **Rate Limiter Integration**: Wired `RateLimiter` into `KamiRuntime::execute()` — token-bucket check runs before any expensive work; returns `RuntimeError::RateLimited` with tool_id/limit/window. Added `rate_limit: RateLimitConfig` field to `RuntimeConfig` with sensible defaults.
+- **Dead Code Cleanup**: Deleted `pool.rs` (15-line stub). Removed `Priority` enum from `scheduler.rs` (was never used for actual scheduling). Updated lib.rs exports and scheduler tests.
+- **MCP Protocol Completeness**: Added `prompts/list`, `resources/list`, `resources/read` dispatch handlers. New files: `prompts_list.rs`, `resources_list.rs`. Server now advertises `tools`, `prompts`, and `resources` capabilities in `initialize` response. Added `PromptsCapability` and `ResourcesCapability` to `kami-protocol`.
+- **WIT describe() Export**: Added `call_describe()` in `kami-engine/bindings.rs` to invoke the `describe()` WIT export. Exported from `kami-engine/lib.rs`.
+- **Tests**: 9 new tests — 1 rate limiter (orchestrator), 5 MCP dispatch (prompts, resources, initialize capabilities), 3 inline (prompts_list, resources_list). **448 tests passing, 0 failures.**
+- **Validation**: `cargo clippy -- -D warnings` clean, `cargo fmt --check` clean, `cargo check` clean.
 
 ## Future Enhancements
 - [x] CI/CD pipeline (GitHub Actions + cargo-audit + coverage) ✅

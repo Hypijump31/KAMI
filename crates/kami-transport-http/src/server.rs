@@ -69,6 +69,7 @@ mod tests {
             cache_size: 4,
             max_concurrent: 2,
             epoch_interruption: false,
+            ..RuntimeConfig::default()
         };
         let runtime = Arc::new(KamiRuntime::new(config, repo.clone()).expect("runtime"));
         Arc::new(McpHandler::new(runtime, repo))

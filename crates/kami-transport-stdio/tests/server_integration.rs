@@ -12,6 +12,7 @@ fn make_handler() -> McpHandler {
         cache_size: 2,
         max_concurrent: 1,
         epoch_interruption: false,
+        ..RuntimeConfig::default()
     };
     let rt = Arc::new(KamiRuntime::new(config, repo.clone()).expect("rt"));
     McpHandler::new(rt, repo)

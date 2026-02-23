@@ -77,3 +77,23 @@ pub async fn call_run(
             message: e.to_string(),
         })
 }
+
+/// Calls the `describe` export on a kami-tool component.
+///
+/// Returns the tool's self-reported metadata as a JSON string.
+///
+/// # Errors
+///
+/// Returns `EngineError::Trap` if the call fails or the component
+/// does not implement `describe`.
+pub async fn call_describe(
+    store: &mut Store<HostState>,
+    tool: &KamiTool,
+) -> Result<String, EngineError> {
+    tool.kami_tool_tool()
+        .call_describe(&mut *store)
+        .await
+        .map_err(|e: wasmtime::Error| EngineError::Trap {
+            message: e.to_string(),
+        })
+}

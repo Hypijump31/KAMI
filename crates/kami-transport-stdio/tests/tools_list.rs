@@ -26,6 +26,7 @@ fn make_handler_with_repo(repo: Arc<SqliteToolRepository>) -> McpHandler {
         cache_size: 4,
         max_concurrent: 2,
         epoch_interruption: false,
+        ..RuntimeConfig::default()
     };
     let rt = Arc::new(KamiRuntime::new(config, repo.clone()).expect("rt"));
     McpHandler::new(rt, repo)

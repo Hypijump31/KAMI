@@ -3,8 +3,8 @@
 use serde_json::Value;
 
 use kami_protocol::mcp::initialize::{
-    InitializeParams, InitializeResult, ServerCapabilities, ServerInfo, ToolCapability,
-    PROTOCOL_VERSION,
+    InitializeParams, InitializeResult, PromptsCapability, ResourcesCapability, ServerCapabilities,
+    ServerInfo, ToolCapability, PROTOCOL_VERSION,
 };
 use kami_protocol::{error_codes, JsonRpcErrorResponse, JsonRpcResponse, RequestId};
 
@@ -26,6 +26,8 @@ pub(crate) fn handle_initialize(id: RequestId, params: &Option<Value>) -> JsonRp
         protocol_version: PROTOCOL_VERSION.to_string(),
         capabilities: ServerCapabilities {
             tools: Some(ToolCapability {}),
+            prompts: Some(PromptsCapability {}),
+            resources: Some(ResourcesCapability {}),
         },
         server_info: ServerInfo {
             name: "kami".to_string(),

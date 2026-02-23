@@ -8,18 +8,6 @@ use std::sync::Arc;
 use tokio::sync::Semaphore;
 use tracing::debug;
 
-/// Task priority levels.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Priority {
-    /// Low priority (background tasks).
-    Low = 0,
-    /// Normal priority (default).
-    #[default]
-    Normal = 1,
-    /// High priority (interactive).
-    High = 2,
-}
-
 /// Configuration for the task scheduler.
 #[derive(Debug, Clone)]
 pub struct SchedulerConfig {

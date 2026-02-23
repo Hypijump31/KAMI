@@ -17,6 +17,7 @@ fn make_state(token: Option<&str>) -> AppState {
         cache_size: 4,
         max_concurrent: 2,
         epoch_interruption: false,
+        ..RuntimeConfig::default()
     };
     let runtime = Arc::new(KamiRuntime::new(config, repo.clone()).expect("rt"));
     AppState {

@@ -22,6 +22,7 @@ fn make_handler() -> (McpHandler, Arc<dyn ToolRepository>) {
         cache_size: 4,
         max_concurrent: 2,
         epoch_interruption: true,
+        ..RuntimeConfig::default()
     };
     let runtime = KamiRuntime::new(config, repo.clone()).expect("runtime");
     let handler = McpHandler::new(Arc::new(runtime), repo.clone());

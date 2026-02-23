@@ -8,6 +8,7 @@ use kami_types::ToolId;
 use tracing::{info, warn};
 use wasmtime::{component::Linker, Engine};
 
+use crate::rate_limiter::RateLimiter;
 use crate::scheduler::{Scheduler, SchedulerConfig};
 use crate::types::{ExecutionResult, ToolExecutor};
 use crate::{cache::ComponentCache, error::RuntimeError, executor::WasmToolExecutor};
@@ -15,12 +16,13 @@ use crate::{metrics::ExecutionMetrics, resolver::ToolResolver, runtime_config::R
 
 /// Top-level runtime orchestrator.
 ///
-/// Combines tool resolution, scheduling, and sandboxed WASM execution.
+/// Combines tool resolution, scheduling, rate limiting, and sandboxed WASM execution.
 /// Use `metrics()` to read live atomic counters.
 pub struct KamiRuntime {
     executor: WasmToolExecutor,
     resolver: ToolResolver,
     scheduler: Scheduler,
+    rate_limiter: RateLimiter,
     metrics: Arc<ExecutionMetrics>,
 }
 
@@ -43,11 +45,13 @@ impl KamiRuntime {
         let scheduler = Scheduler::new(&SchedulerConfig {
             max_concurrent: config.max_concurrent,
         });
+        let rate_limiter = RateLimiter::new(&config.rate_limit);
         let metrics = ExecutionMetrics::new_shared();
         Ok(Self {
             executor: WasmToolExecutor::new(engine.clone(), linker),
             resolver: ToolResolver::new(engine, cache, repository),
             scheduler,
+            rate_limiter,
             metrics,
         })
     }
@@ -63,11 +67,13 @@ impl KamiRuntime {
         let scheduler_config = SchedulerConfig {
             max_concurrent: config.max_concurrent,
         };
+        let rate_limiter = RateLimiter::new(&config.rate_limit);
         let metrics = ExecutionMetrics::new_shared();
         Self {
             executor: WasmToolExecutor::new(engine.clone(), linker),
             resolver: ToolResolver::new(engine, cache, repository),
             scheduler: Scheduler::new(&scheduler_config),
+            rate_limiter,
             metrics,
         }
     }
@@ -75,6 +81,7 @@ impl KamiRuntime {
     /// Executes a tool by its ID with the given JSON input.
     ///
     /// # Errors
+    /// Returns `RuntimeError::RateLimited` if the request exceeds rate limits.
     /// Returns `RuntimeError::ToolNotFound` or `RuntimeError::PoolExhausted`.
     #[tracing::instrument(skip(self, input), fields(tool_id = %tool_id))]
     pub async fn execute(
@@ -84,6 +91,16 @@ impl KamiRuntime {
     ) -> Result<ExecutionResult, RuntimeError> {
         info!(%tool_id, "executing tool");
         self.metrics.record_attempt();
+
+        // Rate limit check — before any expensive work
+        if !self.rate_limiter.check(tool_id) {
+            self.metrics.record_failure();
+            return Err(RuntimeError::RateLimited {
+                tool_id: tool_id.to_string(),
+                limit: self.rate_limiter.config().per_tool,
+                window_secs: self.rate_limiter.config().window.as_secs(),
+            });
+        }
 
         if self.resolver.cache().get(tool_id).await.is_some() {
             self.metrics.record_cache_hit();
@@ -137,10 +154,12 @@ impl KamiRuntime {
         self.metrics.clone()
     }
 
+    /// Returns a reference to the tool resolver.
     pub fn resolver(&self) -> &ToolResolver {
         &self.resolver
     }
 
+    /// Returns a reference to the task scheduler.
     pub fn scheduler(&self) -> &Scheduler {
         &self.scheduler
     }

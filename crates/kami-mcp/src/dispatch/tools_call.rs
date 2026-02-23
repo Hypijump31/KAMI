@@ -86,6 +86,7 @@ mod tests {
                 cache_size: 2,
                 max_concurrent: 1,
                 epoch_interruption: false,
+                ..RuntimeConfig::default()
             },
             repo,
         )

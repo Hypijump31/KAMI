@@ -17,12 +17,26 @@ pub struct ClientCapabilities {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ToolCapability {}
 
+/// Prompts-related capability.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct PromptsCapability {}
+
+/// Resources-related capability.
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ResourcesCapability {}
+
 /// Server capabilities returned during initialization.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ServerCapabilities {
     /// Tools capability (present if server exposes tools).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tools: Option<ToolCapability>,
+    /// Prompts capability (present if server exposes prompts).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prompts: Option<PromptsCapability>,
+    /// Resources capability (present if server exposes resources).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resources: Option<ResourcesCapability>,
 }
 
 /// Client info sent during initialization.
@@ -100,6 +114,8 @@ mod tests {
             protocol_version: PROTOCOL_VERSION.to_string(),
             capabilities: ServerCapabilities {
                 tools: Some(ToolCapability {}),
+                prompts: Some(PromptsCapability {}),
+                resources: Some(ResourcesCapability {}),
             },
             server_info: ServerInfo {
                 name: "kami".to_string(),
@@ -109,6 +125,8 @@ mod tests {
         let json = serde_json::to_string(&result).expect("serialize");
         let back: InitializeResult = serde_json::from_str(&json).expect("deserialize");
         assert_eq!(back.server_info.name, "kami");
+        assert!(back.capabilities.prompts.is_some());
+        assert!(back.capabilities.resources.is_some());
     }
 
     #[test]

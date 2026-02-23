@@ -1,17 +1,6 @@
-//! External scheduler tests for priority and drain coverage.
+//! External scheduler tests for drain and concurrency coverage.
 
-use kami_runtime::{Priority, Scheduler, SchedulerConfig};
-
-#[test]
-fn priority_ordering() {
-    assert!(Priority::High > Priority::Normal);
-    assert!(Priority::Normal > Priority::Low);
-}
-
-#[test]
-fn priority_default_is_normal() {
-    assert_eq!(Priority::default(), Priority::Normal);
-}
+use kami_runtime::{Scheduler, SchedulerConfig};
 
 #[test]
 fn scheduler_max_concurrent_accessor() {

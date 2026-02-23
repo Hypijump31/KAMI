@@ -87,6 +87,11 @@ impl RateLimiter {
         }
     }
 
+    /// Returns the current rate-limit configuration.
+    pub fn config(&self) -> &RateLimitConfig {
+        &self.config
+    }
+
     /// Checks if a request for the given tool is allowed.
     ///
     /// Returns `true` if the request is within both the per-tool and
