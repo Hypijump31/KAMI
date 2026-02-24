@@ -11,5 +11,8 @@ ACTION_PLAN.md
 PROMPT/
 .claude/
 
+# Plugin sources (built locally, distributed via individual GitHub repos)
+PLUGINS/
+
 # Coverage reports
 tarpaulin-report.*
