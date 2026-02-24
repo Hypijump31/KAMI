@@ -1,6 +1,8 @@
 //! CLI command definitions.
 
 pub mod build;
+pub(crate) mod build_package;
+pub(crate) mod build_pipeline;
 pub mod dev;
 pub mod download;
 pub mod exec;
