@@ -1,0 +1,19 @@
+[tool]
+id = "dev.kami.jwt-decode"
+name = "jwt-decode"
+version = "0.1.0"
+wasm = "target/wasm32-wasip2/release/jwt_decode.wasm"
+
+[mcp]
+description = "Decode a JWT token and inspect its header, payload, and claims (read-only, no signature verification)"
+
+[[mcp.arguments]]
+name = "token"
+type = "string"
+description = "JWT token string (eyJ...)"
+required = true
+
+[security]
+fs_access = "none"
+max_memory_mb = 16
+max_execution_ms = 1000

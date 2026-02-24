@@ -1,0 +1,16 @@
+[package]
+name = "json-query"
+version = "0.1.0"
+edition = "2021"
+description = "KAMI plugin — pick, merge, sort, flatten JSON objects"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+kami-guest = { path = "../../crates/kami-guest" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+wit-bindgen = "0.51"
+[workspace]

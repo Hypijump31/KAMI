@@ -1,0 +1,17 @@
+[package]
+name = "jwt-decode"
+version = "0.1.0"
+edition = "2021"
+description = "KAMI plugin — decode JWT tokens and inspect claims (read-only)"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+kami-guest = { path = "../../crates/kami-guest" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+
+wit-bindgen = "0.51"
+[workspace]

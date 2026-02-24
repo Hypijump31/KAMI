@@ -1,0 +1,31 @@
+[tool]
+id = "dev.kami.regex-extract"
+name = "regex-extract"
+version = "0.1.0"
+wasm = "target/wasm32-wasip2/release/regex_extract.wasm"
+
+[mcp]
+description = "Extract regex capture groups from text (supports multiple matches)"
+
+[[mcp.arguments]]
+name = "pattern"
+type = "string"
+description = "Regular expression pattern (Rust regex syntax)"
+required = true
+
+[[mcp.arguments]]
+name = "text"
+type = "string"
+description = "Text to search in"
+required = true
+
+[[mcp.arguments]]
+name = "all"
+type = "boolean"
+description = "Return all matches (true) or only the first (false). Default: true"
+required = false
+
+[security]
+fs_access = "none"
+max_memory_mb = 32
+max_execution_ms = 2000

@@ -1,0 +1,25 @@
+[tool]
+id = "dev.kami.hash-compute"
+name = "hash-compute"
+version = "0.1.0"
+wasm = "target/wasm32-wasip2/release/hash_compute.wasm"
+
+[mcp]
+description = "Compute SHA-256 or SHA-512 hash of any text"
+
+[[mcp.arguments]]
+name = "text"
+type = "string"
+description = "Text to hash"
+required = true
+
+[[mcp.arguments]]
+name = "algorithm"
+type = "string"
+description = "Hash algorithm: sha256 (default) or sha512"
+required = false
+
+[security]
+fs_access = "none"
+max_memory_mb = 16
+max_execution_ms = 1000

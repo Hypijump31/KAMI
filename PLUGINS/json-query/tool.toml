@@ -1,0 +1,37 @@
+[tool]
+id = "dev.kami.json-query"
+name = "json-query"
+version = "0.1.0"
+wasm = "target/wasm32-wasip2/release/json_query.wasm"
+
+[mcp]
+description = "Transform JSON objects: pick keys, merge, sort, flatten, extract keys/values"
+
+[[mcp.arguments]]
+name = "action"
+type = "string"
+description = "Operation: pick | merge | sort_keys | keys | values | flatten"
+required = true
+
+[[mcp.arguments]]
+name = "data"
+type = "object"
+description = "JSON object to transform"
+required = true
+
+[[mcp.arguments]]
+name = "keys"
+type = "array"
+description = "Key names to extract (required for pick)"
+required = false
+
+[[mcp.arguments]]
+name = "extra"
+type = "object"
+description = "Additional object to merge with data (required for merge)"
+required = false
+
+[security]
+fs_access = "none"
+max_memory_mb = 16
+max_execution_ms = 1000

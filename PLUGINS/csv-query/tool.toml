@@ -1,0 +1,37 @@
+[tool]
+id = "dev.kami.csv-query"
+name = "csv-query"
+version = "0.1.0"
+wasm = "target/wasm32-wasip2/release/csv_query.wasm"
+
+[mcp]
+description = "Parse CSV data and filter rows or select columns"
+
+[[mcp.arguments]]
+name = "action"
+type = "string"
+description = "Operation: parse | filter | select | count"
+required = true
+
+[[mcp.arguments]]
+name = "csv"
+type = "string"
+description = "CSV content as a string (comma-separated, first row = headers)"
+required = true
+
+[[mcp.arguments]]
+name = "columns"
+type = "array"
+description = "Column names to select (for select action)"
+required = false
+
+[[mcp.arguments]]
+name = "where"
+type = "object"
+description = "Filter criteria as {column: value} pairs (AND logic)"
+required = false
+
+[security]
+fs_access = "none"
+max_memory_mb = 32
+max_execution_ms = 2000

@@ -445,6 +445,29 @@ All 6 phases of the KAMI roadmap are implemented:
 - **Tests**: 9 new tests — 1 rate limiter (orchestrator), 5 MCP dispatch (prompts, resources, initialize capabilities), 3 inline (prompts_list, resources_list). **448 tests passing, 0 failures.**
 - **Validation**: `cargo clippy -- -D warnings` clean, `cargo fmt --check` clean, `cargo check` clean.
 
+### Session 27 (Seed Plugins — Full Pipeline)
+- **150-line rule enforcement**: Split 3 oversized plugin files
+  - `json-query/src/lib.rs` (166→108) — tests extracted to `src/tests.rs`
+  - `text-transform/src/lib.rs` (180→130) — tests extracted to `src/tests.rs`
+  - `text-diff/src/lib.rs` (178→121) — tests extracted to `src/tests.rs`
+- **Clippy**: 10/10 plugins pass `cargo clippy -- -D warnings` (zero warnings)
+- **WASM build**: 10/10 plugins compiled `wasm32-wasip2 --release`
+  - Sizes: 179 KB (text-diff) to 1429 KB (regex-extract)
+- **Install**: 10/10 plugins registered via `kami install` with SHA-256 integrity
+- **Live exec**: 10/10 plugins tested end-to-end via `kami exec`:
+  - hash-compute: SHA-256("hello") = `2cf24dba...` ✓
+  - base64-codec: encode("hello world") = `aGVsbG8gd29ybGQ=` ✓
+  - regex-extract: `(\d+)` on "foo123bar456" → `123` ✓
+  - json-query: keys({a:1,b:2}) → `["a","b"]` ✓
+  - text-transform: uppercase("hello") → `HELLO` ✓
+  - csv-query: count(2 rows) → `2` ✓
+  - jwt-decode: decode test JWT → "John Doe" ✓
+  - url-parse: parse("https://example.com:8080/...") → components ✓
+  - text-diff: diff("hello world","hello earth") → added/removed ✓
+  - markdown-to-html: `# Hello` → `<h1>Hello</h1>` ✓
+- **Registry**: 11 tools installed (10 seed plugins + echo)
+- **Workspace tests**: 448 passing, 0 failures — no regressions
+
 ## Future Enhancements
 - [x] CI/CD pipeline (GitHub Actions + cargo-audit + coverage) ✅
 - [x] WASM SHA-256 integrity verification at install and exec ✅
@@ -465,5 +488,8 @@ All 6 phases of the KAMI roadmap are implemented:
 - [x] Remote plugin install from URL/GitHub shorthand ✅
 - [x] `kami search` command with remote registry index ✅
 - [x] Ed25519 cryptographic plugin signatures (keygen, sign, verify) ✅
+- [x] 10 seed plugins compiled, installed, and live-tested (full pipeline) ✅
+- [ ] Sign all 10 seed plugins with Ed25519 (`kami sign`)
+- [ ] Generate registry entries for all 10 plugins (`kami publish`)
 - [ ] Test coverage > 75% (transport + CLI integration tests)
 - [ ] Plugin marketplace exploration (Sprint 7.5)

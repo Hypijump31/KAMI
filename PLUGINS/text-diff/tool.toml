@@ -1,0 +1,31 @@
+[tool]
+id = "dev.kami.text-diff"
+name = "text-diff"
+version = "0.1.0"
+wasm = "target/wasm32-wasip2/release/text_diff.wasm"
+
+[mcp]
+description = "Compare two texts and return added/removed/unchanged tokens (line, word, or char level)"
+
+[[mcp.arguments]]
+name = "old"
+type = "string"
+description = "Original text"
+required = true
+
+[[mcp.arguments]]
+name = "new"
+type = "string"
+description = "New text to compare against the original"
+required = true
+
+[[mcp.arguments]]
+name = "mode"
+type = "string"
+description = "Comparison mode: lines (default) | words | chars"
+required = false
+
+[security]
+fs_access = "none"
+max_memory_mb = 32
+max_execution_ms = 3000

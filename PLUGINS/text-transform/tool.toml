@@ -1,0 +1,31 @@
+[tool]
+id = "dev.kami.text-transform"
+name = "text-transform"
+version = "0.1.0"
+wasm = "target/wasm32-wasip2/release/text_transform.wasm"
+
+[mcp]
+description = "Transform text: case conversion, slugify, truncate, word count, and more"
+
+[[mcp.arguments]]
+name = "action"
+type = "string"
+description = "Operation: uppercase | lowercase | titlecase | snake_case | camel_case | pascal_case | kebab_case | slugify | truncate | trim | reverse | word_count"
+required = true
+
+[[mcp.arguments]]
+name = "text"
+type = "string"
+description = "Text to transform"
+required = true
+
+[[mcp.arguments]]
+name = "max_length"
+type = "number"
+description = "Maximum length (required for truncate)"
+required = false
+
+[security]
+fs_access = "none"
+max_memory_mb = 16
+max_execution_ms = 1000
