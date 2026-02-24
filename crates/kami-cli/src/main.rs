@@ -30,6 +30,8 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
+    /// Build a WASM tool from source.
+    Build(commands::build::BuildArgs),
     /// Scaffold a new tool project.
     Init(commands::init::InitArgs),
     /// Validate a tool.toml manifest without installing.
@@ -91,6 +93,7 @@ async fn main() -> anyhow::Result<()> {
     tracing::debug!("KAMI starting with config: {:?}", cli.config);
 
     match &cli.command {
+        Commands::Build(args) => commands::build::execute(args),
         Commands::Init(args) => commands::init::execute(args),
         Commands::Validate(args) => commands::validate::execute(args),
         Commands::Install(args) => commands::install::execute(args).await,
