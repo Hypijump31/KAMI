@@ -30,6 +30,8 @@ struct IndexEntry {
     description: String,
     #[serde(default)]
     source: String,
+    #[serde(default)]
+    download_url: String,
 }
 
 /// Executes the search command.
@@ -56,7 +58,9 @@ pub async fn execute(args: &SearchArgs) -> anyhow::Result<()> {
     output::print_success(&format!("Found {} tool(s):", matches.len()));
     for entry in &matches {
         println!("  {} v{} — {}", entry.id, entry.version, entry.description);
-        if !entry.source.is_empty() {
+        if !entry.download_url.is_empty() {
+            println!("    install: kami install {}", entry.download_url);
+        } else if !entry.source.is_empty() {
             println!("    install: kami install {}", entry.source);
         }
     }
